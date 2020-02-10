@@ -44,7 +44,7 @@ namespace Nektar
 namespace LibUtilities
 {
 
-/// checked cast for int types to float types
+/// checked cast from float types to int types
 LIB_UTILITIES_EXPORT template <class To, class Ti>
 inline To checked_cast(const Ti param)
 {
@@ -55,7 +55,7 @@ inline To checked_cast(const Ti param)
     return static_cast<To>(param);
 }
 
-// do not allow for int types to int types conversion
+// do not allow for conversion from int types to int types
 LIB_UTILITIES_EXPORT template <class To>
 To checked_cast(int param) = delete;
 
