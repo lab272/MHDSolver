@@ -10,6 +10,7 @@ v5.0.1
 ------
 **Library**
 - Fix incorrect coordinate dimension used in history point filter (!1118)
+- Added checked conversion from double to int in SessionReader (!1113)
 
 v5.0.1
 ------

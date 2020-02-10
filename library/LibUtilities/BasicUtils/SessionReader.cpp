@@ -55,6 +55,7 @@
 #include <LibUtilities/Memory/NekMemoryManager.hpp>
 #include <LibUtilities/BasicUtils/ParseUtils.h>
 #include <LibUtilities/BasicUtils/FileSystem.h>
+#include <LibUtilities/BasicUtils/CheckedCast.hpp>
 #include <LibUtilities/Interpreter/Interpreter.h>
 
 #include <boost/program_options.hpp>
@@ -736,13 +737,8 @@ namespace Nektar
             auto paramIter = m_parameters.find(vName);
             ASSERTL0(paramIter != m_parameters.end(), "Required parameter '" +
                      pName + "' not specified in session.");
-            // check if int can be represented
-            NekDouble min = std::numeric_limits<int>::min();
-            NekDouble max = std::numeric_limits<int>::max();
             NekDouble param = round(paramIter->second);
-            ASSERTL0(param >= min, "Input parameter underflows.");
-            ASSERTL0(param <= max, "Input parameter overflows.");
-            pVar = static_cast<int>(param);
+            pVar = checked_cast<int>(param);
         }
 
 
@@ -756,13 +752,8 @@ namespace Nektar
             auto paramIter = m_parameters.find(vName);
             if(paramIter != m_parameters.end())
             {
-                // check if int can be represented
-                NekDouble min = std::numeric_limits<int>::min();
-                NekDouble max = std::numeric_limits<int>::max();
                 NekDouble param = round(paramIter->second);
-                ASSERTL0(param >= min, "Input parameter underflows.");
-                ASSERTL0(param <= max, "Input parameter overflows.");
-                pVar = static_cast<int>(param);
+                pVar = checked_cast<int>(param);
             }
             else
             {
