@@ -38,17 +38,12 @@
 #include <LibUtilities/LibUtilitiesDeclspec.h>
 #include <LibUtilities/BasicUtils/ErrorUtil.hpp>
 #include <limits>
-<<<<<<< HEAD
 #include <type_traits>
-=======
->>>>>>> Added function to check casting and unit test
 
 namespace Nektar
 {
 namespace LibUtilities
 {
-
-<<<<<<< HEAD
 /// checked cast from float types only to int types
 template
 <
@@ -60,11 +55,6 @@ template
     >::type
 >
 inline LIB_UTILITIES_EXPORT To checked_cast(const Ti param)
-=======
-/// checked cast for int types to float types
-LIB_UTILITIES_EXPORT template <class To, class Ti>
-inline To checked_cast(const Ti param)
->>>>>>> Added function to check casting and unit test
 {
     Ti min = std::numeric_limits<To>::min();
     Ti max = std::numeric_limits<To>::max();
@@ -73,22 +63,6 @@ inline To checked_cast(const Ti param)
     return static_cast<To>(param);
 }
 
-<<<<<<< HEAD
-=======
-// do not allow for int types to int types conversion
-LIB_UTILITIES_EXPORT template <class To>
-To checked_cast(int param) = delete;
-
-LIB_UTILITIES_EXPORT template <class To>
-To checked_cast(long param) = delete;
-
-LIB_UTILITIES_EXPORT template <class To>
-To checked_cast(unsigned int param) = delete;
-
-LIB_UTILITIES_EXPORT template <class To>
-To checked_cast(unsigned long param) = delete;
-
->>>>>>> Added function to check casting and unit test
 }
 }
 
