@@ -45,8 +45,8 @@ namespace LibUtilities
 {
 
 /// checked cast from float types to int types
-LIB_UTILITIES_EXPORT template <class To, class Ti>
-inline To checked_cast(const Ti param)
+template <class To, class Ti>
+inline LIB_UTILITIES_EXPORT To checked_cast(const Ti param)
 {
     Ti min = std::numeric_limits<To>::min();
     Ti max = std::numeric_limits<To>::max();
@@ -56,17 +56,17 @@ inline To checked_cast(const Ti param)
 }
 
 // do not allow for conversion from int types to int types
-LIB_UTILITIES_EXPORT template <class To>
-To checked_cast(int param) = delete;
+template <class To>
+LIB_UTILITIES_EXPORT To checked_cast(int param) = delete;
 
-LIB_UTILITIES_EXPORT template <class To>
-To checked_cast(long param) = delete;
+template <class To>
+LIB_UTILITIES_EXPORT To checked_cast(long param) = delete;
 
-LIB_UTILITIES_EXPORT template <class To>
-To checked_cast(unsigned int param) = delete;
+template <class To>
+LIB_UTILITIES_EXPORT To checked_cast(unsigned int param) = delete;
 
-LIB_UTILITIES_EXPORT template <class To>
-To checked_cast(unsigned long param) = delete;
+template <class To>
+LIB_UTILITIES_EXPORT To checked_cast(unsigned long param) = delete;
 
 }
 }
