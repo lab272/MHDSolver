@@ -38,14 +38,23 @@
 #include <LibUtilities/LibUtilitiesDeclspec.h>
 #include <LibUtilities/BasicUtils/ErrorUtil.hpp>
 #include <limits>
+#include <type_traits>
 
 namespace Nektar
 {
 namespace LibUtilities
 {
 
-/// checked cast from float types to int types
-template <class To, class Ti>
+/// checked cast from float types only to int types
+template
+<
+    class To, class Ti,
+    class = typename std::enable_if
+    <
+        std::is_floating_point<typename std::remove_reference<Ti>::type>::value
+        && std::is_integral <typename std::remove_reference<To>::type>::value
+    >::type
+>
 inline LIB_UTILITIES_EXPORT To checked_cast(const Ti param)
 {
     Ti min = std::numeric_limits<To>::min();
@@ -54,19 +63,6 @@ inline LIB_UTILITIES_EXPORT To checked_cast(const Ti param)
     ASSERTL0(param <= max, "Casting would narrow (overflow).");
     return static_cast<To>(param);
 }
-
-// do not allow for conversion from int types to int types
-template <class To>
-LIB_UTILITIES_EXPORT To checked_cast(int param) = delete;
-
-template <class To>
-LIB_UTILITIES_EXPORT To checked_cast(long param) = delete;
-
-template <class To>
-LIB_UTILITIES_EXPORT To checked_cast(unsigned int param) = delete;
-
-template <class To>
-LIB_UTILITIES_EXPORT To checked_cast(unsigned long param) = delete;
 
 }
 }
