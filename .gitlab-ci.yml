@@ -9,6 +9,7 @@ stages:
     refs:
       - merge_requests
       - master
+      - /^release\/.*$/
       - tags
       - web
     changes:
