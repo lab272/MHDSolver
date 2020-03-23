@@ -6,7 +6,9 @@ v5.1.0
 **Library**
 - Refactored time integration code using factory pattern (!1034)
 - Fix to preprocessor logic for boost with Visual Studio >= 2015 (!1115)
-- Added checked conversion from double to int in SessionReader (!1113)
+
+**CardiacEPSolver**
+- Added additional parameter sets to Fenton-Karma model (!1119)
 
 v5.0.1
 ------
