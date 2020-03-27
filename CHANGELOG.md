@@ -17,6 +17,9 @@ v5.0.1
 - Added checked conversion from double to int in SessionReader (!1113)
 - Fix compile errors with GCC 9.x (!1108)
 
+**NekMesh**
+- Fix compile errors when using intel cc (!1114)
+
 **CI**
 - Switched to Gitlab CI (!1120, !1120, !1128, !1129)
 
