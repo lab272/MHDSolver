@@ -16,6 +16,7 @@ v5.0.1
 - Fix incorrect coordinate dimension used in history point filter (!1118)
 - Added checked conversion from double to int in SessionReader (!1113)
 - Fix compile errors with GCC 9.x (!1108)
+- Correct the Energy/Enstropy integral for the 3DH1 flow (!1132)
 
 **IncNavierStokesSolver**
 - Change the baseflow time in the Adjoint advection (!1133)
