@@ -7,13 +7,20 @@ stages:
 .execution-conditions: &execution-conditions
   only:
     refs:
-      - merge_requests
-      - master
       - /^release\/.*$/
-      - tags
+      - merge_requests
+      - master@nektar/nektar
+      - tags@nektar/nektar
       - web
     changes:
-      - "**/*"
+      - "cmake/**/*"
+      - "docker/**/*"
+      - "docs/**/*"
+      - "library/**/*"
+      - "solvers/**/*"
+      - "tests/**/*"
+      - "utilities/**/*"
+      - ".gitlab-ci/*"
       - .dockerignore
       - .gitmodules
       - .gitlab-ci.yml
@@ -66,6 +73,7 @@ stages:
     - docker rm $CONTAINER_NAME
     - exit $exit_code;
   artifacts:
+    expire_in: 1 month
     paths:
       - log/
   timeout: 3h
@@ -190,6 +198,7 @@ user-guide-build:
     - cmake -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release -DNEKTAR_BUILD_LIBRARY:BOOL=OFF -DNEKTAR_BUILD_SOLVERS:BOOL=OFF -DNEKTAR_BUILD_UTILITIES:BOOL=OFF -DNEKTAR_BUILD_TESTS:BOOL=OFF -DNEKTAR_BUILD_DOC:BOOL=ON .
     - make -C build -j 4 user-guide-pdf user-guide-html developer-guide-pdf developer-guide-html
   artifacts:
+    expire_in: 1 month
     paths:
       - build/docs/user-guide/user-guide.pdf
       - build/docs/user-guide/html
@@ -202,6 +211,7 @@ doxygen-build:
     - cmake -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release -DNEKTAR_BUILD_LIBRARY:BOOL=OFF -DNEKTAR_BUILD_SOLVERS:BOOL=OFF -DNEKTAR_BUILD_UTILITIES:BOOL=OFF -DNEKTAR_BUILD_TESTS:BOOL=OFF -DNEKTAR_BUILD_DOC:BOOL=ON .
     - make -C build doc
   artifacts:
+    expire_in: 1 month
     paths:
       - build/docs/doxygen/html/
 
@@ -213,6 +223,7 @@ tutorials-build:
     - cmake -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release .
     - make -C build -j 2 tutorials-pdf tutorials-html
   artifacts:
+    expire_in: 1 month
     paths:
       - build/docs/tutorial/
 
