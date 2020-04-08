@@ -24,6 +24,9 @@ v5.0.1
 **NekMesh**
 - Fix compile errors when using intel cc (!1114)
 
+**Documentation**
+- Fix error in compilation of developer guide (!1136)
+
 **CI**
 - Added checked conversion from double to int in SessionReader (!1113)
 - Switched to Gitlab CI (!1120, !1120, !1128, !1129, !1131)
