@@ -8,6 +8,11 @@ v5.0.1
 - Added checked conversion from double to int in SessionReader (!1113)
 - Fix compile errors with GCC 9.x (!1108)
 - Correct the Energy/Enstropy integral for the 3DH1 flow (!1132)
+- Added IsRealEqual method to compare real numbers with relative tolerance.
+  Started using it in SharedArray and in NekMesh to fix peralign-extrude tool
+  chain (!1134)
+- Fix Collection unit tests (!1160)
+- Fix periodic boundary conditions with HDF5 input file (!1163)
 
 **IncNavierStokesSolver**
 - Change the baseflow time in the Adjoint advection (!1133)
