@@ -794,7 +794,7 @@ void FilterAeroForces::CalculateForces(
                                 // Extract values at boundary
                                 Pb = Array<OneD, NekDouble>(nbc,0.0);
                                 elmt->GetEdgePhysVals(boundary,bc,pElmt,Pb);
-                                for(int j = 0; j < expdim*expdim; ++j)
+                                for(j = 0; j < expdim*expdim; ++j)
                                 {
                                     gradb[j] = Array<OneD, NekDouble>
                                                     (nbc,0.0);
@@ -820,7 +820,7 @@ void FilterAeroForces::CalculateForces(
                                 // Extract values at boundary
                                 Pb = Array<OneD, NekDouble>(nbc,0.0);
                                 elmt->GetFacePhysVals(boundary,bc,pElmt,Pb);
-                                for(int j = 0; j < expdim*expdim; ++j)
+                                for(j = 0; j < expdim*expdim; ++j)
                                 {
                                     gradb[j] = Array<OneD, NekDouble>
                                                     (nbc,0.0);
