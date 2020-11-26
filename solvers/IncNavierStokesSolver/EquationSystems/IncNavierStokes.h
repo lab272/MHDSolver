@@ -188,6 +188,9 @@ namespace Nektar
 
         /// Number of fields to be convected;
         int   m_nConvectiveFields;
+        
+        /// Diffusion coefficients (will be kinvis for velocities)
+        Array<OneD, NekDouble> m_diffCoeff;
 
         /// int which identifies which components of m_fields contains the
         /// velocity (u,v,w);

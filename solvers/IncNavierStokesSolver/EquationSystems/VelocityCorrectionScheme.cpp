@@ -74,29 +74,7 @@ namespace Nektar
         IncNavierStokes::v_InitObject();
         m_explicitDiffusion = false;
 
-        // Set m_pressure to point to last field of m_fields;
-        if (boost::iequals(m_session->GetVariable(m_fields.num_elements()-1), "p"))
-        {
-            m_nConvectiveFields = m_fields.num_elements()-1;
-            m_pressure = m_fields[m_nConvectiveFields];
-        }
-        else
-        {
-            ASSERTL0(false,"Need to set up pressure field definition");
-        }
-
-        // Determine diffusion coefficients for each field
-        m_diffCoeff = Array<OneD, NekDouble> (m_nConvectiveFields, m_kinvis);
-        for (n = 0; n < m_nConvectiveFields; ++n)
-        {
-            std::string varName = m_session->GetVariable(n);
-            if ( m_session->DefinesFunction("DiffusionCoefficient", varName))
-            {
-                LibUtilities::EquationSharedPtr ffunc
-                    = m_session->GetFunction("DiffusionCoefficient", varName);
-                m_diffCoeff[n] = ffunc->Evaluate();
-            }
-        }
+ 
 
         // Integrate only the convective fields
         for (n = 0; n < m_nConvectiveFields; ++n)
@@ -638,7 +616,7 @@ namespace Nektar
      */
     int VelocityCorrectionScheme::v_GetForceDimension()
     {
-        return m_session->GetVariables().size() - 1;
+        return m_nConvectiveFields;
     }
 
     /**

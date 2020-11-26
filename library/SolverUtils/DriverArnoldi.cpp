@@ -76,7 +76,7 @@ void DriverArnoldi::v_InitObject(ostream &out)
     {
         m_period  = m_session->GetParameter("TimeStep")
                   * m_session->GetParameter("NumSteps");
-        m_nfields = m_equ[0]->UpdateFields().num_elements() - 1;
+        m_nfields = m_session->GetParameter("nConvectiveEauations");
 
     }
     else

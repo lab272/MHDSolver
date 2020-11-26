@@ -126,9 +126,7 @@ namespace Nektar
         Array<OneD, NekDouble> m_svvVarDiffCoeff;
         /// Identifier for Power Kernel otherwise DG kernel
         bool m_IsSVVPowerKernel;
-        /// Diffusion coefficients (will be kinvis for velocities)
-        Array<OneD, NekDouble> m_diffCoeff;
-
+        
         /// Variable Coefficient map for the Laplacian which can be activated as part of SVV or otherwise
         StdRegions::VarCoeffMap m_varCoeffLap;
 

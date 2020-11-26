@@ -99,6 +99,48 @@ namespace Nektar
                 ASSERTL0(j != numfields, "Failed to find field: " + var);
             }
         }
+        
+               // Set m_pressure to point to last field of m_fields;
+        if (boost::iequals(m_session->GetVariable(m_fields.num_elements()-1), "p"))
+        {
+            m_nConvectiveFields = m_spacedim;
+            m_pressure = m_fields[m_fields.num_elements()-1];
+        }
+        else
+        {
+            ASSERTL0(false,"Need to set up pressure field definition");
+        }
+        
+        m_session->LoadParameter("Kinvis", m_kinvis);
+
+        // Determine diffusion coefficients for each field
+        Array<OneD, NekDouble> diffcoeff = Array<OneD, NekDouble> (m_fields.num_elements()-1, m_kinvis);
+        for (i = 0; i < m_fields.num_elements()-1; ++i)
+        {
+            std::string varName = m_session->GetVariable(i);
+            if ( m_session->DefinesFunction("DiffusionCoefficient", varName))
+            {
+                if( i == m_nConvectiveFields)
+                {
+                    LibUtilities::EquationSharedPtr ffunc
+                        = m_session->GetFunction("DiffusionCoefficient", varName);
+                    diffcoeff[i] = ffunc->Evaluate();
+                    m_nConvectiveFields++;
+                }
+                else
+                {
+                    ASSERTL0(false,"Right fields order is: velocity fields, passive scalar fields, auxiliary fields, the pressure.");
+                }
+            }
+        }
+        
+        m_session->SetParameter("nConvectiveEauations",m_nConvectiveFields);
+       
+        m_diffCoeff = Array<OneD, NekDouble> (m_nConvectiveFields, 0.0);
+        for(i = 0; i < m_nConvectiveFields; i++)
+        {
+            m_diffCoeff[i] = diffcoeff[i];
+        }
 
         // Set up equation type enum using kEquationTypeStr
         for(i = 0; i < (int) eEquationTypeSize; ++i)
@@ -130,8 +172,7 @@ namespace Nektar
         default:
             ASSERTL0(false,"Unknown or undefined equation type");
         }
-
-        m_session->LoadParameter("Kinvis", m_kinvis);
+      
 
         // Default advection type per solver
         std::string vConvectiveType;
