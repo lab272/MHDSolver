@@ -42,6 +42,7 @@
 #include <MultiRegions/ExpList.h>
 #include <SolverUtils/SolverUtilsDeclspec.h>
 #include <SolverUtils/Forcing/Forcing.h>
+#include <SolverUtils/EquationSystem.h>
 
 namespace Nektar
 {
@@ -100,6 +101,14 @@ namespace SolverUtils
             NekDouble       m_conductivity;
             std::string     m_funcName;
             Array<OneD, Array<OneD, NekDouble> > m_magneticField;
+            MultiRegions::ExpListSharedPtr m_phi;
+            
+            // Calculate the vector product of inarray1 and inarray2
+            void VectorProduct(
+                    const Array<OneD,
+                    const Array<OneD, NekDouble> > &inarray1,
+                    const Array<OneD,const Array<OneD, NekDouble> > &inarray2,
+                    Array<OneD, Array<OneD, NekDouble> > &outarray);
 
     };
 
