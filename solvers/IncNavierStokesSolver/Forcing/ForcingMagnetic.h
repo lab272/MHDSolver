@@ -102,11 +102,21 @@ namespace SolverUtils
             std::string     m_funcName;
             Array<OneD, Array<OneD, NekDouble> > m_magneticField;
             MultiRegions::ExpListSharedPtr m_phi;
+            bool m_2D;
+            
+            void updatePhi(
+                    const Array< OneD, MultiRegions::ExpListSharedPtr > &pFields,
+                    const Array<OneD, Array<OneD, NekDouble> > &inarray,
+                    const NekDouble &time);
+            
+            void Update(
+            const Array< OneD, MultiRegions::ExpListSharedPtr > &pFields,
+            const Array<OneD, Array<OneD, NekDouble> > &inarray,
+            const NekDouble &time);
             
             // Calculate the vector product of inarray1 and inarray2
             void VectorProduct(
-                    const Array<OneD,
-                    const Array<OneD, NekDouble> > &inarray1,
+                    const Array<OneD,const Array<OneD, NekDouble> > &inarray1,
                     const Array<OneD,const Array<OneD, NekDouble> > &inarray2,
                     Array<OneD, Array<OneD, NekDouble> > &outarray);
 
