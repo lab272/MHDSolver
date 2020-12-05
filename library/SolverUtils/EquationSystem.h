@@ -273,6 +273,8 @@ class Interpolator;
             
             SOLVER_UTILS_EXPORT inline NekDouble GetTimeStep();
             
+            SOLVER_UTILS_EXPORT inline int GetSpaceDim();
+            
             SOLVER_UTILS_EXPORT inline void CopyFromPhysField(const int i,
                     Array<OneD, NekDouble> &output);
             
@@ -722,6 +724,11 @@ class Interpolator;
         inline NekDouble EquationSystem::GetTimeStep(void)
         {
             return m_timestep;
+        }
+        
+        inline int EquationSystem::GetSpaceDim(void)
+        {
+            return m_spacedim;
         }
         
         inline void EquationSystem::SetSteps(const int steps)
