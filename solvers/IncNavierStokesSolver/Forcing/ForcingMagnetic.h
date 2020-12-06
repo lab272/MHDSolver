@@ -8,7 +8,7 @@
 //
 // Copyright (c) 2006 Division of Applied Mathematics, Brown University (USA),
 // Department of Aeronautics, Imperial College London (UK), and Scientific
-// Computing and Imaging Institute, University of Utah (USA).
+// Computing and Imaging Institute, University of Utah (USA), Alexander Proskurin (Rus).
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -48,6 +48,14 @@ namespace Nektar
 {
 namespace SolverUtils
 {
+    
+    const std::string kMagFieldStr[] =
+    {
+        "Bx",
+        "By",
+        "Bz"
+    };
+    
     //  Forward declaration
     class ForcingMagnetic;
 
@@ -99,10 +107,14 @@ namespace SolverUtils
             virtual ~ForcingMagnetic(void){};
             
             NekDouble       m_conductivity;
-            std::string     m_funcName;
+            std::string     m_magneticFieldFuncName;
             Array<OneD, Array<OneD, NekDouble> > m_magneticField;
             MultiRegions::ExpListSharedPtr m_phi;
-            bool m_2D;
+            bool m_2D, m_adjoint;
+            
+            void updateMagneticField(
+                    const Array< OneD, MultiRegions::ExpListSharedPtr > &pFields,
+                    const NekDouble &time);
             
             void updatePhi(
                     const Array< OneD, MultiRegions::ExpListSharedPtr > &pFields,

@@ -8,7 +8,7 @@
 //
 // Copyright (c) 2006 Division of Applied Mathematics, Brown University (USA),
 // Department of Aeronautics, Imperial College London (UK), and Scientific
-// Computing and Imaging Institute, University of Utah (USA).
+// Computing and Imaging Institute, University of Utah (USA), Alexander Proskurin (Rus).
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -67,7 +67,7 @@ namespace SolverUtils
         
         boost::ignore_unused(pForce);
                       
-        std::vector<std::string> fieldname{"Hx", "Hy", "Hz"};
+        m_adjoint = false;
 
         m_NumVariable = m_equ.lock()->GetSpaceDim();
         if(m_NumVariable == 1)
@@ -84,23 +84,23 @@ namespace SolverUtils
                 "Requires MAGNETICFIELD tag, specifying the magnetic field function. "
                 "the magnetic field function.");
         
-        m_funcName = magfieldElmt->GetText();
-        ASSERTL0(m_session->DefinesFunction(m_funcName),
-                 "Function '" + m_funcName + "' not defined.");
+        m_magneticFieldFuncName = magfieldElmt->GetText();
+        ASSERTL0(m_session->DefinesFunction(m_magneticFieldFuncName),
+                 "Function '" + m_magneticFieldFuncName + "' not defined.");
         
 //         Check the magnetic field vector elements. They should be in general: "Hx", "Hy", "Hz".
 //         If the flow completely 2D and use only "u" and "v" fields, "Hz" may be skipped.
 //         In this case the "phi" field also may be skipped and the equation 
 //         \Delta \varphi = \nabla(\boldsymbol{v} \times \boldsymbol{H}) is not solved.
         int magdim = 0;
-        for (int i = 0; i < fieldname.size(); ++i)
+        for (int i = 0; i < 3; ++i)
         {
-            std::string s_FieldStr = fieldname.at(i); 
-            if(m_session->DefinesFunction(m_funcName, s_FieldStr))
+            std::string s_FieldStr = kMagFieldStr[i]; 
+            if(m_session->DefinesFunction(m_magneticFieldFuncName, s_FieldStr))
             {
                 magdim++;
             }
-            else if(s_FieldStr != fieldname.at(2))
+            else if(s_FieldStr != kMagFieldStr[2])
             {
                 ASSERTL0(false, "Variable '" + s_FieldStr + "' not defined.");
             }
@@ -118,10 +118,11 @@ namespace SolverUtils
         m_magneticField = Array<OneD, Array<OneD, NekDouble> > (magdim);
         for (int i = 0; i < magdim; ++i)
         {
-            std::string s_FieldStr = fieldname.at(i);
+//             std::string s_FieldStr = kMagFieldStr[i];
             m_magneticField[i] = Array<OneD, NekDouble> (phystot, 0.0);
-            GetFunction(pFields, m_session, m_funcName)->Evaluate(s_FieldStr, m_magneticField[i]);
+//             GetFunction(pFields, m_session, m_magneticFieldFuncName)->Evaluate(s_FieldStr, m_magneticField[i]);
         }
+        updateMagneticField(pFields,0.0);
         
         if(!m_2D){
             int numfields = m_equ.lock()->UpdateFields().num_elements();
@@ -153,6 +154,17 @@ namespace SolverUtils
         Update(pFields,tempfields,0.0);
         
     }
+    
+    void ForcingMagnetic::updateMagneticField(
+            const Array< OneD, MultiRegions::ExpListSharedPtr > &pFields,
+            const NekDouble &time)
+    {
+        for (int i = 0; i < m_magneticField.num_elements(); ++i)
+        {
+            std::string s_FieldStr = kMagFieldStr[i]; 
+            GetFunction(pFields, m_session, m_magneticFieldFuncName)->Evaluate(s_FieldStr, m_magneticField[i],time);
+        }
+    }
 
     void ForcingMagnetic::v_Apply(
             const Array<OneD, MultiRegions::ExpListSharedPtr> &fields,
@@ -179,6 +191,8 @@ namespace SolverUtils
         int phystot = pFields[0]->GetTotPoints();
         int i,j;
         
+        updateMagneticField(pFields,time);
+        
         if(m_2D)
         {
 //             Calculates $\sigma(\boldsymbol{v} \times \boldsymbol{B}_0)\times \boldsymbol{B}_0$
@@ -194,56 +208,43 @@ namespace SolverUtils
             Vmath::Vvtvm(phystot,m_magneticField[1],1,inarray[0],1,tempvalue,1,tempvalue,1);
             Vmath::Vmul(phystot,m_magneticField[0],1,tempvalue,1,tempvalue,1);
             Vmath::Smul(phystot,m_conductivity,tempvalue,1,m_Forcing[1],1);
-            
-//             VectorProduct(inarray, m_magneticField,tempvalue);
-//             for(j = 0; j < 2; j++)
-//             {
-//                 Vmath::Smul(phystot,m_conductivity,tempvalue[j],1,tempvalue[j],1);
-//             }
-//             VectorProduct(tempvalue, m_magneticField,m_Forcing);
-            
+
             return;
         }
         
+        updatePhi(pFields,inarray,time);
         
-//         Array<OneD, Array<OneD, NekDouble> > gradphi(3), velocity(3);
-//         for(int i = 0; i < 3; i++){
-//                 gradphi[i] = Array<OneD, NekDouble>(phystot, 0.0);
-//                 velocity[i] = Array<OneD, NekDouble>(phystot, 0.0);
-//         }
-
-//         m_phi->PhysDeriv(0, m_phi->GetPhys(), gradphi[0]);
-//         m_phi->PhysDeriv(1, m_phi->GetPhys(), gradphi[1]);
-//         h0field[0] = m_H0field[0]; 
-//         h0field[1] = m_H0field[1];
-//         velocity[0] = pFields[0]->GetPhys();
-//         velocity[1] = pFields[1]->GetPhys();
-//         if(m_NumVariable == 3){
-//                 m_phi->PhysDeriv(2, m_elpotential->GetPhys(), gradphi[2]);
-//                 h0field[2] = m_H0field[2];
-//                 velocity[2] = m_fields[2]->GetPhys();
-//         }
-
-//         Array<OneD, Array<OneD, NekDouble> > v_mul_h0(3), temp(3), output3d(3);
-//         for(int i = 0; i < 3; i++){
-//                 v_mul_h0[i] = Array<OneD, NekDouble>(phystot, 0.0);
-//                 temp[i] = Array<OneD, NekDouble>(phystot, 0.0);
-//                 output3d[i] = Array<OneD, NekDouble>(phystot, 0.0);
-//         }
-// 
-// 
-//         SpecialHVecMult(velocity, h0field, v_mul_h0);
-// 
-//         for(int i = 0; i < 3; i++){
-//                 Vmath::Vsub(phystot, v_mul_h0[i], 1, gradphi[i], 1, temp[i], 1);
-//         }
-// 
-//         SpecialHVecMult(temp, h0field, output3d);
-// 
-//         for(int i = 0; i < m_spacedim; i++){
-//                 Vmath::Svtvp(phystot, m_stnumber, output3d[i], 1, outarray[i], 1, outarray[i], 1);
-//         }
+        int dim = 3;
+        Array<OneD, Array<OneD, NekDouble> > gradphi(dim),tempvalue(dim),tempvalue2;
+        for(int i = 0; i < dim; i++)
+        {
+            gradphi[i] = Array<OneD, NekDouble>(phystot, 0.0);
+            tempvalue[i] = Array<OneD, NekDouble>(phystot, 0.0);
+        }
         
+        VectorProduct(inarray, m_magneticField,tempvalue);
+        
+        NekDouble gradsign = -1.0;
+        if(m_adjoint)
+        {
+            gradsign = 1.0;
+        }
+        for(int i = 0; i < dim; i++)
+        {
+            m_phi->PhysDeriv(i, m_phi->GetPhys(), gradphi[i]);
+            Vmath::Svtvp(phystot,gradsign,gradphi[i],1,tempvalue[i],1,tempvalue[i],1);
+        }
+        
+        tempvalue2 = gradphi;
+        
+        VectorProduct(tempvalue, m_magneticField,tempvalue2);
+        
+        for(int i = 0; i < dim; i++)
+        {
+            Vmath::Smul(phystot,m_conductivity,tempvalue[i],1,m_Forcing[i],1);
+        }
+        
+        return;
         
     }
     
@@ -258,27 +259,24 @@ namespace SolverUtils
         factors[StdRegions::eFactorLambda] = 0.0;
 
         int phystot = pFields[0]->GetTotPoints();
+        int dim = 3;
 
-        Array<OneD, NekDouble> rhs(phystot, 0.0);
+        Array<OneD, Array<OneD, NekDouble> > productVB(dim);
+        for(int i = 0; i < dim; i++){
+           productVB[i] = Array<OneD, NekDouble>(phystot, 0.0);
+        }
 
-        if(m_magneticField.num_elements() == 3){
-                Array<OneD, Array<OneD, NekDouble> > productVB(3), velocity(3);
-                for(int i = 0; i < 3; i++){
-                        productVB[i] = Array<OneD, NekDouble>(phystot, 0.0);
-                }
-                for(int i = 0; i < velocity.num_elements(); i++){
-                        velocity[i] = pFields[i]->GetPhys();
-                }
-
-                VectorProduct(velocity, m_magneticField, productVB);
-                Array<OneD, Array<OneD, NekDouble> > div(3);
-                for(int i = 0; i < div.num_elements(); i++){
-                        div[i] = Array<OneD, NekDouble>(phystot, 0.0);
-                        pFields[0]->PhysDeriv(i, productVB[i], div[i]);
-                }
-
-                Vmath::Vadd(phystot, div[0], 1, div[1], 1, rhs, 1);
-                Vmath::Vadd(phystot, rhs, 1, div[2], 1, rhs, 1);
+//      Calculate $\nabla \cdot \left( \boldsymbol{v} \times \boldsymbol{B}_0 \right)$
+        VectorProduct(inarray, m_magneticField, productVB);
+        Array<OneD, NekDouble> rhs(phystot, 0.0), div_i(phystot, 0.0);
+        for(int i = 0; i < dim; i++){
+           pFields[0]->PhysDeriv(i, productVB[i], div_i);
+           Vmath::Vadd(phystot, rhs, 1, div_i, 1, rhs, 1);
+        }
+        
+        if(m_adjoint)
+        {
+            Vmath::Neg(phystot, rhs, 1);
         }
                 
         m_phi->HelmSolve(rhs, m_phi->UpdateCoeffs(), NullFlagList, factors);
