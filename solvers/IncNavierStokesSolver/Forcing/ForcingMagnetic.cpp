@@ -68,6 +68,10 @@ namespace SolverUtils
         boost::ignore_unused(pForce);
                       
         m_adjoint = false;
+        if(m_session->GetTag("AdvectiveType") == "Adjoint")
+        {
+            m_adjoint = true;
+        }
 
         m_NumVariable = m_equ.lock()->GetSpaceDim();
         if(m_NumVariable == 1)
@@ -173,7 +177,7 @@ namespace SolverUtils
             const NekDouble &time)
     {
 //         boost::ignore_unused(fields, inarray, time);
-        
+
         Update(fields, inarray, time);
 
         for (int i = 0; i < m_NumVariable; i++)
@@ -215,11 +219,11 @@ namespace SolverUtils
         updatePhi(pFields,inarray,time);
         
         int dim = 3;
-        Array<OneD, Array<OneD, NekDouble> > gradphi(dim),tempvalue(dim),tempvalue2;
+        Array<OneD, Array<OneD, NekDouble> > tempvalue(dim),tempvalue2(dim);
         for(int i = 0; i < dim; i++)
         {
-            gradphi[i] = Array<OneD, NekDouble>(phystot, 0.0);
             tempvalue[i] = Array<OneD, NekDouble>(phystot, 0.0);
+            tempvalue2[i] = Array<OneD, NekDouble>(phystot, 0.0);
         }
         
         VectorProduct(inarray, m_magneticField,tempvalue);
@@ -229,19 +233,19 @@ namespace SolverUtils
         {
             gradsign = 1.0;
         }
+        
+        Array<OneD, NekDouble> gradphi_i = Array<OneD, NekDouble>(phystot, 0.0);
         for(int i = 0; i < dim; i++)
         {
-            m_phi->PhysDeriv(i, m_phi->GetPhys(), gradphi[i]);
-            Vmath::Svtvp(phystot,gradsign,gradphi[i],1,tempvalue[i],1,tempvalue[i],1);
+            m_phi->PhysDeriv(i, m_phi->GetPhys(), gradphi_i);
+            Vmath::Svtvp(phystot,gradsign,gradphi_i,1,tempvalue[i],1,tempvalue[i],1);
         }
-        
-        tempvalue2 = gradphi;
-        
+         
         VectorProduct(tempvalue, m_magneticField,tempvalue2);
         
         for(int i = 0; i < dim; i++)
         {
-            Vmath::Smul(phystot,m_conductivity,tempvalue[i],1,m_Forcing[i],1);
+            Vmath::Smul(phystot,m_conductivity,tempvalue2[i],1,m_Forcing[i],1);
         }
         
         return;
